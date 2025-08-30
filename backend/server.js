@@ -65,20 +65,10 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-
-        // Allow scripts from self, inline, eval (for some libs), and blob:
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:"],
-
-        // Allow styles from self, inline, and Ant Design CDN
         styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-
-        // Allow fonts from Ant Design CDN
         fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
-
-        // Allow images from self + base64
         imgSrc: ["'self'", "data:"],
-
-        // Allow API requests to your frontend + backend
         connectSrc: [
           "'self'",
           "http://localhost:5173",
@@ -86,20 +76,35 @@ app.use(
         ],
       },
     },
-    crossOriginEmbedderPolicy: false, // 👈 disable strict COEP if you need blobs
+    crossOriginEmbedderPolicy: false,
   })
 );
 
 connectDB();
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/comments", commentRoutes);
+
+// Health check root
 app.get("/", (req, res) => {
   res.status(200).send("✅ API is running");
 });
 
+// ❌ 404 handler for unknown routes
+app.use((req, res, next) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+// ❌ Global error handler
+app.use((err, req, res, next) => {
+  console.error("🔥 Server Error:", err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+  });
+});
 
 // 👉 Export the app for Vercel
 export default app;
@@ -111,3 +116,4 @@ if (!process.env.VERCEL) {
     console.log(`API running on http://localhost:${PORT}`)
   );
 }
+
