@@ -1,11 +1,8 @@
-// frontend/src/lib/api.js (example)
+// frontend/src/lib/api.js
 import axios from 'axios';
+
 const api = axios.create({
-  baseURL: import.meta.env.MODE === "development"
-    ? "http://localhost:3000" // your local backend
-    : "https://private-blue-kappa.vercel.app" // deployed backend
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000"
 });
+
 export default api;
-
-
- 
