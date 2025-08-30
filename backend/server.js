@@ -1,4 +1,3 @@
- 
 // backend/server.js
 import ticketRoutes from "./routes/ticketRoutes.js";
 import cookieParser from "cookie-parser";
@@ -8,36 +7,35 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { connectDB } from "./connection.js";
 import express from "express";
-import helmet from "helmet";                 
+import helmet from "helmet";
 
 const app = express();
 app.use(express.json());
 
-// CORS: allow your Vercel frontend + local dev
+// ✅ CORS setup
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://private-x59y.vercel.app" // ✅ your frontend domain
+  "https://private-x59y.vercel.app",  // production frontend
+  process.env.FRONTEND_URL || ""      // optional env var
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow non-browser tools like Postman
+      if (!origin) return callback(null, true); // allow Postman / server-to-server
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
-      } else {
-        console.warn("❌ Blocked by CORS:", origin);
-        return callback(new Error("Not allowed by CORS"));
       }
+      console.warn("❌ Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
 );
 
-
 app.use(cookieParser());
 
-
+// ✅ Helmet with CSP
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -50,7 +48,8 @@ app.use(
         connectSrc: [
           "'self'",
           "http://localhost:5173",
-          process.env.FRONTEND_URL,
+          "https://private-x59y.vercel.app",
+          process.env.FRONTEND_URL || "",
           "https://www.google-analytics.com"
         ],
       },
@@ -58,7 +57,6 @@ app.use(
     crossOriginEmbedderPolicy: false,
   })
 );
-
 
 connectDB();
 
@@ -68,17 +66,17 @@ app.use("/api/users", userRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/comments", commentRoutes);
 
-// Health check root
+// Health check
 app.get("/", (req, res) => {
   res.status(200).send("✅ API is running");
 });
 
-// ❌ 404 handler for unknown routes
+// 404 handler
 app.use((req, res, next) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// ❌ Global error handler
+// Global error handler
 app.use((err, req, res, next) => {
   console.error("🔥 Server Error:", err);
   res.status(err.status || 500).json({
@@ -86,14 +84,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 👉 Export the app for Vercel
+// Export app for Vercel
 export default app;
 
-// 👉 Only listen when running locally (not on Vercel)
+// Local dev only
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () =>
     console.log(`API running on http://localhost:${PORT}`)
   );
 }
-
