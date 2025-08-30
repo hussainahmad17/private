@@ -96,6 +96,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/comments", commentRoutes);
+app.get("/", (req, res) => {
+  res.status(200).send("✅ API is running");
+});
+
 
 // 👉 Export the app for Vercel
 export default app;
