@@ -73,6 +73,7 @@ app.use(
           "'self'",
           "http://localhost:5173",
           "https://YOUR-FRONTEND-NAME.vercel.app",
+          "https://www.google-analytics.com"  // ✅ allow GA
         ],
       },
     },
