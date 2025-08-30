@@ -54,14 +54,29 @@ app.use(express.json());
 // CORS: allow your Vercel frontend + local dev
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL  // 👈 your real frontend
+  process.env.FRONTEND_URL  // 👈 should resolve to frontend
 ];
-// app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (!origin) return callback(null, true);
+//       if (allowedOrigins.includes(origin)) {
+//         return callback(null, true);
+//       } else {
+//         console.warn("❌ Blocked by CORS:", origin);
+//         return callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow Postman, curl, etc
-      if (allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.some(o => origin.startsWith(o))) {  // ✅ partial match
         return callback(null, true);
       } else {
         console.warn("❌ Blocked by CORS:", origin);
@@ -71,9 +86,31 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 
 // ✅ Add secure headers with CSP
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'"],
+//         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:"],
+//         styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+//         fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
+//         imgSrc: ["'self'", "data:"],
+//         connectSrc: [
+//           "'self'",
+//           "http://localhost:5173",
+//           process.env.FRONTEND_URL,   // 👈 allow frontend to call backend
+//           "https://www.google-analytics.com"
+//         ],
+//       },
+//     },
+//     crossOriginEmbedderPolicy: false,
+//   })
+// );
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -86,7 +123,7 @@ app.use(
         connectSrc: [
           "'self'",
           "http://localhost:5173",
-          process.env.FRONTEND_URL,   // 👈 allow frontend to call backend
+          process.env.FRONTEND_URL,
           "https://www.google-analytics.com"
         ],
       },
@@ -94,6 +131,7 @@ app.use(
     crossOriginEmbedderPolicy: false,
   })
 );
+
 
 connectDB();
 
