@@ -47,7 +47,7 @@ const SearchAndFilterPage = () => {
   const fetchTickets = async () => {
 
     try {
-      const res = await api.get("/api/tickets", { withCredentials: true });
+      const res = await api.get("/tickets", { withCredentials: true });
       setTickets(res.data);
       setFilteredTickets(res.data);
     } catch (err) {
@@ -57,7 +57,7 @@ const SearchAndFilterPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/api/users", { withCredentials: true });
+      const res = await api.get("/users", { withCredentials: true });
       setUsers(res.data);
     } catch (err) {
       console.error("Failed to fetch users", err);

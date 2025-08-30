@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -16,6 +15,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import dayjs from "dayjs";
+import api from "../../../pages/admin/libs/api"; // ✅ use centralized api.js
 
 const statusOptions = ["Open", "In Progress", "Resolved", "Closed"];
 
@@ -33,51 +33,43 @@ const FilterTicketDetailPage = () => {
     fetchComments();
   }, [ticketId]);
 
+  // ✅ fetch single ticket
   const fetchTicket = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/tickets/${ticketId}`, {
-        withCredentials: true,
-      });
-      setTicket(res.data);
-      setStatus(res.data.status);
+      const res = await api.get(`/tickets/${ticketId}`);
+      setTicket(res);
+      setStatus(res.status);
     } catch (err) {
       console.error("Error fetching ticket:", err);
     }
   };
 
+  // ✅ fetch ticket comments
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/comments/${ticketId}`, {
-        withCredentials: true,
-      });
-      setComments(res.data);
+      const res = await api.get(`/comments/${ticketId}`);
+      setComments(res);
     } catch (err) {
       console.error("Error fetching comments:", err);
     }
   };
 
+  // ✅ update ticket status
   const handleStatusChange = async () => {
     try {
-      await axios.patch(
-        `http://localhost:3000/api/tickets/${ticketId}/status`,
-        { status },
-        { withCredentials: true }
-      );
+      await api.patch(`/tickets/${ticketId}/status`, { status });
       fetchTicket();
     } catch (err) {
       console.error("Error updating status:", err);
     }
   };
 
+  // ✅ add a new comment
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
     try {
       setLoading(true);
-      await axios.post(
-        `http://localhost:3000/api/comments/${ticketId}`,
-        { text: newComment },
-        { withCredentials: true }
-      );
+      await api.post(`/comments/${ticketId}`, { text: newComment });
       setNewComment("");
       fetchComments();
     } catch (err) {
@@ -111,15 +103,18 @@ const FilterTicketDetailPage = () => {
         </Typography>
 
         <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-          <Chip label={`Status: ${ticket.status}`} color={
-            ticket.status === "Open"
-              ? "primary"
-              : ticket.status === "In Progress"
-              ? "warning"
-              : ticket.status === "Resolved"
-              ? "success"
-              : "default"
-          } />
+          <Chip
+            label={`Status: ${ticket.status}`}
+            color={
+              ticket.status === "Open"
+                ? "primary"
+                : ticket.status === "In Progress"
+                ? "warning"
+                : ticket.status === "Resolved"
+                ? "success"
+                : "default"
+            }
+          />
           <Chip label={`Priority: ${ticket.priority}`} variant="outlined" />
           <Chip label={`Category: ${ticket.category}`} variant="outlined" />
         </Stack>
@@ -163,7 +158,8 @@ const FilterTicketDetailPage = () => {
           {comments.map((comment) => (
             <Box key={comment._id} sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2 }}>
               <Typography variant="body2" fontWeight="bold">
-                {(comment.userId && comment.userId.name) || "Unknown User"} — {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
+                {(comment.userId && comment.userId.name) || "Unknown User"} —{" "}
+                {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
               </Typography>
               <Typography variant="body1">{comment.text}</Typography>
               {comment.attachment && (

@@ -45,7 +45,7 @@ const OverviewPage = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get("/api/tickets/stats", { withCredentials: true });
+      const res = await api.get("/tickets/stats", { withCredentials: true });
       setStats(res.data);
     } catch (err) {
       console.error("Error fetching stats:", err);

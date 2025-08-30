@@ -39,7 +39,7 @@ const AllTicketDetailsPage = () => {
 
   const fetchTicketDetails = async () => {
     try {
-      const res = await api.get(`/api/tickets/${ticketId}`, {
+      const res = await api.get(`/tickets/${ticketId}`, {
         withCredentials: true,
       });
       setTicket(res.data);
@@ -54,7 +54,7 @@ const AllTicketDetailsPage = () => {
   const handleStatusChange = async (newStatus) => {
     try {
       await api.patch(
-        `/api/tickets/${ticketId}/status`,
+        `/tickets/${ticketId}/status`,
         { status: newStatus },
         { withCredentials: true }
       );

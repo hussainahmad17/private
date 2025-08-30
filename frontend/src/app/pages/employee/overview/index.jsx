@@ -1,5 +1,6 @@
+// /src/app/pages/employee/EmployeeOverviewPage.jsx
+
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -27,6 +28,7 @@ import {
   Legend,
 } from "recharts";
 import { useAuth } from "@app/_components/_core/AuthProvider/hooks";
+import api from "../../admin/libs/api"; // ✅ centralized API
 
 const COLORS = ["#1976d2", "#ff9800", "#4caf50", "#9e9e9e"];
 
@@ -46,9 +48,7 @@ const EmployeeOverviewPage = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/tickets/stats/employee", {
-          withCredentials: true,
-        });
+        const res = await api.get("/tickets/stats/employee"); // ✅ refactored
         setStats(res.data);
       } catch (err) {
         console.error("Error fetching stats:", err);
@@ -99,6 +99,7 @@ const EmployeeOverviewPage = () => {
         {!isMobile && "This dashboard helps you track and manage your tickets effectively."}
       </Typography>
 
+      {/* Metric Cards */}
       <Grid container spacing={2} mb={4}>
         {metricCards.map((item, index) => (
           <Grid item xs={6} sm={4} md={3} lg={2.4} key={index}>
@@ -248,4 +249,4 @@ const EmployeeOverviewPage = () => {
 };
 
 export default EmployeeOverviewPage;
-
+ 

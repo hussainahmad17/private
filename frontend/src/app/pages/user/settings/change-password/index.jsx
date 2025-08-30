@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   JumboForm,
   JumboOutlinedInput,
@@ -17,6 +16,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { SettingHeader } from "@app/_components/user/settings";
 import { toast } from "react-toastify";
 import * as yup from "yup";
+import api from "../../../admin/libs/api"; // ✅ using api.js abstraction
 
 // ✅ Validation Schema
 const validationSchema = yup.object({
@@ -48,26 +48,14 @@ const ChangePassword = () => {
     setSuccess("");
 
     try {
-      const response = await axios.put(
-        "http://localhost:3000/api/users/change-password",
-        {
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-          confirmNewPassword: data.confirmNewPassword,
-        },
-        { withCredentials: true }
-      );
+      await api.put("/users/change-password", {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+        confirmNewPassword: data.confirmNewPassword,
+      });
 
       setSuccess("Password changed successfully!");
-
-      toast.success("Password changed successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.success("Password changed successfully!", { autoClose: 3000 });
 
       setTimeout(() => {
         navigate("/admin-dashboard/all-tickets");
@@ -75,15 +63,7 @@ const ChangePassword = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Failed to change password";
       setError(errorMessage);
-
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(errorMessage, { autoClose: 4000 });
     } finally {
       setLoading(false);
     }
@@ -98,10 +78,10 @@ const ChangePassword = () => {
 
   return (
     <>
-      <SettingHeader title={"Change Password"} />
+      <SettingHeader title="Change Password" />
 
       <JumboCard
-        title={"Update Your Password"}
+        title="Update Your Password"
         contentWrapper
         sx={{ maxWidth: 600, mx: "auto", mt: 2 }}
       >

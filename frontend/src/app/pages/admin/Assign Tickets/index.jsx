@@ -63,7 +63,7 @@ const AssignTicketsPage = () => {
       if (!agentId || !selectedPriority) return;
 
       await api.patch(
-        `/api/tickets/${ticketId}/assign`,
+        `/tickets/${ticketId}/assign`,
         { assignedTo: agentId, priority: selectedPriority },
         { withCredentials: true }
       );

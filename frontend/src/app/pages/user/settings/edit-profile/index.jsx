@@ -1,6 +1,7 @@
+// /src/app/pages/user/settings/EditProfile.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   JumboForm,
   JumboInput,
@@ -16,6 +17,9 @@ import { SettingHeader } from "@app/_components/user/settings";
 import { useAuth } from "@app/_components/_core/AuthProvider/hooks";
 import { toast } from "react-toastify";
 import * as yup from "yup";
+
+// ✅ Import centralized API instance
+import api from "../../../admin/libs/api";
 
 const validationSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -35,16 +39,12 @@ const EditProfile = () => {
     setSuccess("");
 
     try {
-      const response = await axios.put(
-        "http://localhost:3000/api/users/profile",
-        {
-          name: data.name,
-          email: data.email,
-        },
-        { withCredentials: true }
-      );
+      // ✅ Use api instead of axios directly
+      const response = await api.put("/users/profile", {
+        name: data.name,
+        email: data.email,
+      });
 
-      // ✅ Assume response contains updated user object
       const updatedUser = response.data.user;
 
       if (updatedUser) {

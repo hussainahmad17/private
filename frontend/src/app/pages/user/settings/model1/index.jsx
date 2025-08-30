@@ -11,9 +11,9 @@ import {
 import { JumboForm, JumboInput } from "@jumbo/vendors/react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import * as yup from "yup";
-import axios from "axios";
 import { useAuth } from "@app/_components/_core/AuthProvider/hooks";
 import { toast } from "react-toastify";
+import api from "../../../admin/libs/api"; // ✅ centralized API
 
 const validationSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -32,18 +32,18 @@ const EditProfileModal = ({ open, onClose }) => {
     setLoading(true);
 
     try {
-      const res = await axios.put(
-        "http://localhost:3000/api/users/profile",
-        data,
-        { withCredentials: true }
-      );
-      updateUser(res.data.user);
+      // ✅ Refactored to use api.js
+      const res = await api.put("/users/profile", data);
+
+      updateUser(res.user);
       setSuccess("Profile updated successfully");
       toast.success("Profile updated");
+
       onClose(); // close modal
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to update profile";
+      const msg = err.message || "Failed to update profile";
       setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
+// /pages/support-agent/AssignedTicketsPage.jsx
+
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -14,6 +15,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import api from "../../admin/libs/api"; // ✅ use centralized axios instance
 
 const statusColors = {
   Open: "primary",
@@ -46,9 +48,7 @@ const AssignedTicketsPage = () => {
 
   const fetchAssignedTickets = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/tickets/assigned", {
-        withCredentials: true,
-      });
+      const res = await api.get("/tickets/assigned"); // ✅ replaced axios with api.js
       setTickets(res.data);
       setFilteredTickets(res.data);
     } catch (err) {
@@ -80,8 +80,12 @@ const AssignedTicketsPage = () => {
       const matchCategory = filters.category ? ticket.category === filters.category : true;
 
       const createdDate = dayjs(ticket.createdAt);
-      const matchFromDate = filters.fromDate ? createdDate.isAfter(dayjs(filters.fromDate).subtract(1, 'day')) : true;
-      const matchToDate = filters.toDate ? createdDate.isBefore(dayjs(filters.toDate).add(1, 'day')) : true;
+      const matchFromDate = filters.fromDate
+        ? createdDate.isAfter(dayjs(filters.fromDate).subtract(1, "day"))
+        : true;
+      const matchToDate = filters.toDate
+        ? createdDate.isBefore(dayjs(filters.toDate).add(1, "day"))
+        : true;
 
       return matchStatus && matchPriority && matchCategory && matchFromDate && matchToDate;
     });
@@ -217,7 +221,9 @@ const AssignedTicketsPage = () => {
                   cursor: "pointer",
                   ":hover": { boxShadow: 6 },
                 }}
-                onClick={() => navigate(`/support-agent-dashboard/assigned-tickets/${ticket._id}`)}
+                onClick={() =>
+                  navigate(`/support-agent-dashboard/assigned-tickets/${ticket._id}`)
+                }
               >
                 <Box>
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
@@ -273,4 +279,3 @@ const AssignedTicketsPage = () => {
 };
 
 export default AssignedTicketsPage;
-

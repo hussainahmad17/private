@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -10,7 +9,6 @@ import {
   CircularProgress,
   TextField,
   Button,
-  Divider,
   Stack,
   MenuItem,
   Chip,
@@ -18,6 +16,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import api from "../../admin/libs/api"; // ✅ use central api.js
 
 const statusOptions = ["Open", "In Progress", "Resolved", "Closed"];
 
@@ -36,37 +35,32 @@ const TicketDetailSupportAgent = () => {
     fetchComments();
   }, [ticketId]);
 
+  // ✅ Fetch ticket details
   const fetchTicket = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/tickets/${ticketId}`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/tickets/${ticketId}`);
       setTicket(res.data);
     } catch (err) {
       console.error("Error fetching ticket:", err);
     }
   };
 
+  // ✅ Fetch ticket comments
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/comments/${ticketId}`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/comments/${ticketId}`);
       setComments(res.data);
     } catch (err) {
       console.error("Error fetching comments:", err);
     }
   };
 
+  // ✅ Add new comment
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
     try {
       setLoading(true);
-      await axios.post(
-        `http://localhost:3000/api/comments/${ticketId}`,
-        { text: newComment },
-        { withCredentials: true }
-      );
+      await api.post(`/comments/${ticketId}`, { text: newComment });
       setNewComment("");
       fetchComments();
     } catch (err) {
@@ -76,15 +70,12 @@ const TicketDetailSupportAgent = () => {
     }
   };
 
+  // ✅ Update ticket status
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     try {
       setUpdatingStatus(true);
-      await axios.patch(
-        `http://localhost:3000/api/tickets/${ticketId}/status`,
-        { status: newStatus },
-        { withCredentials: true }
-      );
+      await api.patch(`/tickets/${ticketId}/status`, { status: newStatus });
       setTicket((prev) => ({ ...prev, status: newStatus }));
     } catch (err) {
       console.error("Error updating status:", err);
@@ -103,6 +94,7 @@ const TicketDetailSupportAgent = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#f4f6f8", minHeight: "100vh" }}>
+      {/* Back Button + Title */}
       <Box display="flex" alignItems="center" mb={2}>
         <IconButton onClick={() => navigate(-1)}>
           <ArrowBackIcon />
@@ -112,6 +104,7 @@ const TicketDetailSupportAgent = () => {
         </Typography>
       </Box>
 
+      {/* Ticket Info */}
       <Paper sx={{ p: 4, borderRadius: 4, mb: 4 }} elevation={3}>
         <Typography variant="h5" gutterBottom fontWeight={600}>
           {ticket.title}
@@ -120,12 +113,18 @@ const TicketDetailSupportAgent = () => {
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} flexWrap="wrap" mb={2}>
           <Chip label={`Priority: ${ticket.priority}`} variant="outlined" />
           <Chip label={`Category: ${ticket.category}`} variant="outlined" />
-          <Chip label={`Status: ${ticket.status}`} color={
-            ticket.status === "Open" ? "primary" :
-            ticket.status === "In Progress" ? "warning" :
-            ticket.status === "Resolved" ? "success" :
-            "default"
-          } />
+          <Chip
+            label={`Status: ${ticket.status}`}
+            color={
+              ticket.status === "Open"
+                ? "primary"
+                : ticket.status === "In Progress"
+                ? "warning"
+                : ticket.status === "Resolved"
+                ? "success"
+                : "default"
+            }
+          />
         </Stack>
 
         <Typography variant="body1" mb={1}>
@@ -139,6 +138,7 @@ const TicketDetailSupportAgent = () => {
           {ticket.description || "No description provided."}
         </Typography>
 
+        {/* Status Update */}
         <Box mt={4}>
           <TextField
             label="Update Status"
@@ -157,6 +157,7 @@ const TicketDetailSupportAgent = () => {
         </Box>
       </Paper>
 
+      {/* Comments */}
       <Typography variant="h5" gutterBottom color="primary.main">
         💬 Comments
       </Typography>
@@ -167,9 +168,13 @@ const TicketDetailSupportAgent = () => {
             <Typography color="text.secondary">No comments yet.</Typography>
           )}
           {comments.map((comment) => (
-            <Box key={comment._id} sx={{ p: 2, border: "1px solid #e0e0e0", borderRadius: 2 }}>
+            <Box
+              key={comment._id}
+              sx={{ p: 2, border: "1px solid #e0e0e0", borderRadius: 2 }}
+            >
               <Typography variant="body2" fontWeight="bold">
-                {comment.userId?.name || "Unknown"} — {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
+                {comment.userId?.name || "Unknown"} —{" "}
+                {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
               </Typography>
               <Typography variant="body1" mt={0.5}>
                 {comment.text}
@@ -183,6 +188,7 @@ const TicketDetailSupportAgent = () => {
           ))}
         </Stack>
 
+        {/* Add Comment */}
         <Box mt={4}>
           <TextField
             label="Add a comment"

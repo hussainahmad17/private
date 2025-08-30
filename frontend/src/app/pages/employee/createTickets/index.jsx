@@ -1,5 +1,6 @@
+// /src/app/pages/tickets/CreateTicketPage.jsx
+
 import React, { useState } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -13,6 +14,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import api from "../../admin/libs/api"; // ✅ use centralized api
 
 const categories = ["IT", "HR", "Office"];
 
@@ -40,12 +42,11 @@ const CreateTicketPage = () => {
     setErrorMessage("");
 
     try {
-      await axios.post("http://localhost:3000/api/tickets", form, {
-        withCredentials: true,
-      });
+      await api.post("/tickets", form); // ✅ uses api.js (baseURL + credentials included)
       setSuccessMessage("🎉 Ticket created successfully!");
       setForm({ title: "", description: "", category: "" });
     } catch (err) {
+      console.error("Ticket creation failed:", err);
       setErrorMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);

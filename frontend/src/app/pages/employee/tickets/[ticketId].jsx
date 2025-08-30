@@ -1,6 +1,6 @@
+// src/app/pages/tickets/TicketDetailPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -8,7 +8,6 @@ import {
   CircularProgress,
   TextField,
   Button,
-  Divider,
   Stack,
   Chip,
   useMediaQuery,
@@ -17,9 +16,13 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import dayjs from "dayjs";
 
+// Import API helper
+import api from "../../admin/libs/api"; // adjust path based on your project
+
 const TicketDetailPage = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
+
   const [ticket, setTicket] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -28,7 +31,7 @@ const TicketDetailPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Fetch ticket and comments
+  // Fetch ticket + comments on mount
   useEffect(() => {
     fetchTicket();
     fetchComments();
@@ -36,10 +39,8 @@ const TicketDetailPage = () => {
 
   const fetchTicket = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/tickets/${ticketId}`, {
-        withCredentials: true,
-      });
-      setTicket(res.data);
+      const res = await api.get(`/tickets/${ticketId}`);
+      setTicket(res);
     } catch (err) {
       console.error("Error fetching ticket:", err);
     }
@@ -47,10 +48,8 @@ const TicketDetailPage = () => {
 
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/api/comments/${ticketId}`, {
-        withCredentials: true,
-      });
-      setComments(res.data);
+      const res = await api.get(`/comments/${ticketId}`);
+      setComments(res);
     } catch (err) {
       console.error("Error fetching comments:", err);
     }
@@ -60,11 +59,7 @@ const TicketDetailPage = () => {
     if (!newComment.trim()) return;
     try {
       setLoading(true);
-      await axios.post(
-        `http://localhost:3000/api/comments/${ticketId}`,
-        { text: newComment },
-        { withCredentials: true }
-      );
+      await api.post(`/comments/${ticketId}`, { text: newComment });
       setNewComment("");
       fetchComments();
     } catch (err) {

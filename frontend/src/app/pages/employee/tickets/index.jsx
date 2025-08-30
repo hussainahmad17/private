@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -14,6 +13,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import api from "../../admin/libs/api"; // ✅ Import centralized API
 
 // ========================
 // Constants
@@ -52,11 +52,9 @@ const MyTicketsPage = () => {
   useEffect(() => {
     const fetchMyTickets = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/tickets/my", {
-          withCredentials: true,
-        });
-        setTickets(res.data);
-        setFilteredTickets(res.data);
+        const data = await api.get("/tickets/my"); // ✅ cleaner API call
+        setTickets(data);
+        setFilteredTickets(data);
       } catch (err) {
         console.error("Error fetching tickets:", err);
       } finally {
@@ -234,7 +232,12 @@ const MyTicketsPage = () => {
                   <Typography
                     variant="h6"
                     color="text.primary"
-                    sx={{ maxWidth: "65%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    sx={{
+                      maxWidth: "65%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
                   >
                     {ticket.title}
                   </Typography>

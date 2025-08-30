@@ -14,8 +14,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { JumboForm, JumboOutlinedInput } from "@jumbo/vendors/react-hook-form";
 import * as yup from "yup";
-import axios from "axios";
 import { toast } from "react-toastify";
+import api from "../../../admin/libs/api"; // ✅ use centralized API
 
 // ✅ Validation Schema
 const validationSchema = yup.object({
@@ -53,17 +53,13 @@ const ChangePasswordModal = ({ open, onClose }) => {
     setLoading(true);
 
     try {
-      await axios.put(
-        "http://localhost:3000/api/users/change-password",
-        {
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        },
-        { withCredentials: true }
-      );
+      // ✅ Using centralized API instance
+      await api.put("/users/change-password", {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
 
       setSuccess("Password changed successfully!");
-
       toast.success("Password changed successfully!", {
         position: "top-right",
         autoClose: 3000,
@@ -93,10 +89,7 @@ const ChangePasswordModal = ({ open, onClose }) => {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-        <JumboForm
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
+        <JumboForm validationSchema={validationSchema} onSubmit={handleSubmit}>
           <Stack spacing={3}>
             <JumboOutlinedInput
               fieldName="currentPassword"
@@ -151,7 +144,9 @@ const ChangePasswordModal = ({ open, onClose }) => {
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} color="secondary">Cancel</Button>
+        <Button onClick={onClose} color="secondary">
+          Cancel
+        </Button>
       </DialogActions>
     </Dialog>
   );

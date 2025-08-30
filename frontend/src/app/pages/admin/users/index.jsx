@@ -32,7 +32,7 @@ const UserPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/api/users", { withCredentials: true });
+      const res = await api.get("/users", { withCredentials: true });
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -41,7 +41,7 @@ const UserPage = () => {
 
   const handleCreateUser = async () => {
     try {
-      await api.post("/api/auth/create", newUser, { withCredentials: true });
+      await api.post("/auth/create", newUser, { withCredentials: true });
       setSuccessMessage("User created successfully");
       setNewUser({ name: "", email: "", password: "", role: "employee" });
       fetchUsers();
@@ -52,7 +52,7 @@ const UserPage = () => {
 
   const handleRoleUpdate = async (userId, newRole) => {
     try {
-      await api.patch(`/api/users/${userId}/role`, { role: newRole }, { withCredentials: true });
+      await api.patch(`/users/${userId}/role`, { role: newRole }, { withCredentials: true });
       setSuccessMessage("User role updated successfully");
       fetchUsers();
     } catch (err) {

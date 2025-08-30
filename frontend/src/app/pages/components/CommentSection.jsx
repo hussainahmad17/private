@@ -1,7 +1,6 @@
 // /src/app/components/CommentSection.jsx
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
@@ -12,6 +11,7 @@ import {
   Avatar,
   CircularProgress,
 } from "@mui/material";
+import api from "../admin/libs/api"; // ✅ use centralized api
 
 const CommentSection = ({ ticketId }) => {
   const [comments, setComments] = useState([]);
@@ -20,15 +20,12 @@ const CommentSection = ({ ticketId }) => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchComments();
+    if (ticketId) fetchComments();
   }, [ticketId]);
 
   const fetchComments = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:3000/api/comments/${ticketId}`,
-        { withCredentials: true }
-      );
+      const res = await api.get(`/comments/${ticketId}`);
       setComments(res.data);
     } catch (err) {
       console.error("Failed to load comments", err);
@@ -41,11 +38,7 @@ const CommentSection = ({ ticketId }) => {
     if (!text.trim()) return;
     setSubmitting(true);
     try {
-      await axios.post(
-        `http://localhost:3000/api/comments/${ticketId}`,
-        { text },
-        { withCredentials: true }
-      );
+      await api.post(`/comments/${ticketId}`, { text });
       setText("");
       fetchComments();
     } catch (err) {
