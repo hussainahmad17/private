@@ -54,17 +54,17 @@ app.use(express.json());
 // CORS: allow your Vercel frontend + local dev
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL  // 👈 replace with your actual frontend URL
+  process.env.FRONTEND_URL  // 👈 your real frontend
 ];
 // app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
-      if (!origin) return callback(null, true);
+      if (!origin) return callback(null, true); // allow Postman, curl, etc
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
+        console.warn("❌ Blocked by CORS:", origin);
         return callback(new Error("Not allowed by CORS"));
       }
     },
@@ -86,10 +86,9 @@ app.use(
         connectSrc: [
           "'self'",
           "http://localhost:5173",
-          process.env.FRONTEND_URL, // 👈 allow frontend
+          process.env.FRONTEND_URL,   // 👈 allow frontend to call backend
           "https://www.google-analytics.com"
         ],
-
       },
     },
     crossOriginEmbedderPolicy: false,
