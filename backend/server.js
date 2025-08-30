@@ -1,3 +1,4 @@
+ 
 // backend/server.js
 import ticketRoutes from "./routes/ticketRoutes.js";
 import cookieParser from "cookie-parser";
@@ -7,7 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { connectDB } from "./connection.js";
 import express from "express";
-import helmet from "helmet";
+import helmet from "helmet";                 
 
 const app = express();
 app.use(express.json());
@@ -15,14 +16,14 @@ app.use(express.json());
 // CORS: allow your Vercel frontend + local dev
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL  // 👈 should resolve to frontend
+  "https://private-x59y.vercel.app" // ✅ your frontend domain
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.some(o => origin.startsWith(o))) {  // ✅ partial match
+      if (!origin) return callback(null, true); // allow non-browser tools like Postman
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
         console.warn("❌ Blocked by CORS:", origin);
@@ -32,6 +33,7 @@ app.use(
     credentials: true,
   })
 );
+
 
 app.use(cookieParser());
 
