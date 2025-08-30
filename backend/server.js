@@ -1,42 +1,3 @@
-// import express from "express";
-// import dotenv from "dotenv";
-// import cors from "cors";
-// import ticketRoutes from "./routes/ticketRoutes.js";
-// import cookieParser from "cookie-parser";
-// import commentRoutes from "./routes/commentRoutes.js";
-// import authRoutes from "./routes/authRoutes.js";
-// import userRoutes from "./routes/userRoutes.js";
-// import { connectDB } from "./connection.js";
-// import path from "path";
-
-// dotenv.config();
-// const app = express();
-
-// // app.use(cors());
-// app.use(cors({
-//   origin: 'http://localhost:5173',
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
-
-// app.use(express.json()); 
-// app.use(cookieParser());
-
-
-// app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
-// app.use("/api/tickets", ticketRoutes);
-// app.use("/api/comments", commentRoutes);
-
-// connectDB
-
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   connectDB();
-//   console.log(`Server running on port ${PORT}`);
-// });
-
 // backend/server.js
 import ticketRoutes from "./routes/ticketRoutes.js";
 import cookieParser from "cookie-parser";
@@ -57,21 +18,6 @@ const allowedOrigins = [
   process.env.FRONTEND_URL  // 👈 should resolve to frontend
 ];
 
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin) return callback(null, true);
-//       if (allowedOrigins.includes(origin)) {
-//         return callback(null, true);
-//       } else {
-//         console.warn("❌ Blocked by CORS:", origin);
-//         return callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -89,27 +35,6 @@ app.use(
 
 app.use(cookieParser());
 
-// ✅ Add secure headers with CSP
-// app.use(
-//   helmet({
-//     contentSecurityPolicy: {
-//       directives: {
-//         defaultSrc: ["'self'"],
-//         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:"],
-//         styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-//         fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
-//         imgSrc: ["'self'", "data:"],
-//         connectSrc: [
-//           "'self'",
-//           "http://localhost:5173",
-//           process.env.FRONTEND_URL,   // 👈 allow frontend to call backend
-//           "https://www.google-analytics.com"
-//         ],
-//       },
-//     },
-//     crossOriginEmbedderPolicy: false,
-//   })
-// );
 
 app.use(
   helmet({
